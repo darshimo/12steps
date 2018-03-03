@@ -17,6 +17,15 @@ struct h8_3069f_sci {
     volatile uint8 scmr;
 };
 
+/* 
+    SMR(シリアルモードレジスタ)
+    0,1 :   クロックセレクト。共にゼロならばクロックをそのまま利用
+    3   :   ストップビット長。０で１ビット、１で２ビット
+    4   :   パリティの種類。０で偶数パリティ、１で奇数パリティ
+    5   :   ０でパリティ無効、１でパリティ有効
+    6   :   データ長。０で８ビット、１で７ビット。
+    7   :   ０で調歩同期式モード、１でクロック同期式モード
+*/
 #define H8_3069F_SCI_SMR_CKS_PER1   (0<<0)
 #define H8_3069F_SCI_SMR_CKS_PER4   (1<<0)
 #define H8_3069F_SCI_SMR_CKS_PER16  (2<<0)
@@ -28,6 +37,14 @@ struct h8_3069f_sci {
 #define H8_3069F_SCI_SMR_CHR        (1<<6)
 #define H8_3069F_SCI_SMR_CA         (1<<7)
 
+/*
+    SCR(シリアルコントロールレジスタ)
+    0,1 :   クロックイネーブル。ひとまず、共にゼロでよい
+    4   :   受信イネーブル。１で受信開始
+    5   :   送信イネーブル。１で送信開始
+    6   :   受信割込みイネーブル。１で受信割込み有効
+    7   :   送信割込みイネーブル。１で送信割込み有効
+*/
 #define H8_3069F_SCI_SCR_CKE0       (1<<0)
 #define H8_3069F_SCI_SCR_CKE1       (1<<1)
 #define H8_3069F_SCI_SCR_TEIE       (1<<2)
@@ -37,6 +54,11 @@ struct h8_3069f_sci {
 #define H8_3069F_SCI_SCR_RIE        (1<<6) /* 受信割込み有効 */
 #define H8_3069F_SCI_SCR_TIE        (1<<7) /* 送信割込み有効 */
 
+/*
+    SSR(シリアルステータスレジスタ)
+    6   :   受信完了ビット。受信完了で１になる
+    7   ;   送信完了ビット。送信完了で１になる
+*/
 #define H8_3069F_SCI_SSR_MPBT       (1<<0)
 #define H8_3069F_SCI_SSR_MPB        (1<<1)
 #define H8_3069F_SCI_SSR_TEND       (1<<2)
@@ -70,7 +92,7 @@ int serial_init(int index){
 /* 送信可能か? */
 int serial_is_send_enable(int index){
     volatile struct h8_3069f_sci *sci = regs[index].sci;
-    return (sci->ssr & H8_3069F_SCI_SSR_TDRE);
+    return (sci->ssr & H8_3069F_SCI_SSR_TDRE);//sci->ssrの７ビット目が１の時のみ１を返す。
 }
 
 /* １文字送信 */
